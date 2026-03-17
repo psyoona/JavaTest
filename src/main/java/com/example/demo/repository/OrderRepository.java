@@ -83,6 +83,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // 3) 오프셋 기반 페이징 (번호 페이지네이션용)
     // ──────────────────────────────────────────────
 
+    // ※ 성능 주의: LIKE %:customerName% 는 선행 와일드카드로 인해 인덱스를 사용하지 못함.
+    //   데이터 수백만 건 이상 환경에서는 PostgreSQL pg_trgm 확장(GIN 인덱스)을 고려할 것.
     @Query("""
             SELECT o FROM Order o
             WHERE (:customerName IS NULL OR o.customerName LIKE %:customerName%)

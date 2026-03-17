@@ -75,6 +75,8 @@ public class OrderApiController {
     @PostMapping("/process/batch")
     public ResponseEntity<Map<String, Object>> processBatch(
             @RequestParam(defaultValue = "1000") int batchSize) {
+        // 범위 제한 (최소 100, 최대 10000)
+        if (batchSize < 100 || batchSize > 10000) batchSize = 1000;
         long startTime = System.currentTimeMillis();
         long count = orderService.processOrdersByBatch(batchSize);
         long elapsed = System.currentTimeMillis() - startTime;

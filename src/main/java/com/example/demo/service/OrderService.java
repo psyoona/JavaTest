@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
@@ -158,7 +159,7 @@ public class OrderService {
     public OrderDto findById(Long id) {
         return orderRepository.findById(id)
                 .map(OrderDto::from)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다. ID: " + id));
+                .orElseThrow(() -> new NoSuchElementException("주문을 찾을 수 없습니다. ID: " + id));
     }
 
     @Transactional
@@ -179,11 +180,21 @@ public class OrderService {
     @Transactional(readOnly = true)
     public PageResponse<OrderDto> findOrdersByPage(int page, int size,
                                                     String customerName, String statusStr) {
+        // 입력값 범위 검증 (DOS 방지 및 안정성)
+        if (page < 1) page = 1;
+        if (size < 1 || size > 200) size = 50;
+
         // 빈 문자열을 null로 변환
         String custName = (customerName != null && !customerName.isBlank()) ? customerName : null;
+
+        // 잘못된 status 값은 500이 아닌 400으로 처리
         Order.OrderStatus status = null;
         if (statusStr != null && !statusStr.isBlank()) {
-            status = Order.OrderStatus.valueOf(statusStr);
+            try {
+                status = Order.OrderStatus.valueOf(statusStr);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("유효하지 않은 주문 상태입니다: " + statusStr);
+            }
         }
 
         // Spring Data의 page는 0-based, 프론트엔드는 1-based

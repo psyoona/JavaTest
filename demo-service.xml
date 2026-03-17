@@ -1,0 +1,29 @@
+<service>
+  <id>SpringBootDemo</id>
+  <name>Spring Boot Demo Application</name>
+  <description>주문 관리 시스템 Spring Boot 서비스</description>
+
+  <executable>C:\Program Files\Eclipse Adoptium\jdk-25\bin\java.exe</executable>
+  <arguments>-Xms256m -Xmx512m -jar C:\deploy\app.jar --spring.profiles.active=prod</arguments>
+
+  <!-- DB 비밀번호 환경변수 주입 -->
+  <env name="DB_PASSWORD" value="강한비밀번호로변경"/>
+  <env name="DB_URL" value="jdbc:postgresql://localhost:5432/demo"/>
+  <env name="DB_USERNAME" value="postgres"/>
+
+  <workingdirectory>C:\deploy</workingdirectory>
+
+  <!-- 로그 설정 -->
+  <logpath>C:\deploy\logs</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>5</keepFiles>
+  </log>
+
+  <!-- 오류 시 자동 재시작 -->
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="20 sec"/>
+  <onfailure action="none"/>
+
+  <startmode>Automatic</startmode>
+</service>
