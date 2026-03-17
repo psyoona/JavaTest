@@ -1,6 +1,8 @@
 package com.example.demo.repository;
 
 import com.example.demo.domain.Order;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
@@ -78,7 +80,22 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Stream<Order> streamByStatus(@Param("status") Order.OrderStatus status);
 
     // ──────────────────────────────────────────────
-    // 3) 카운트 쿼리 (필요 시에만 사용)
+    // 3) 오프셋 기반 페이징 (번호 페이지네이션용)
+    // ──────────────────────────────────────────────
+
+    @Query("""
+            SELECT o FROM Order o
+            WHERE (:customerName IS NULL OR o.customerName LIKE %:customerName%)
+              AND (:status IS NULL OR o.status = :status)
+            ORDER BY o.id ASC
+            """)
+    Page<Order> findPageWithCondition(
+            @Param("customerName") String customerName,
+            @Param("status") Order.OrderStatus status,
+            Pageable pageable);
+
+    // ──────────────────────────────────────────────
+    // 4) 카운트 쿼리 (필요 시에만 사용)
     // ──────────────────────────────────────────────
 
     @Query("""

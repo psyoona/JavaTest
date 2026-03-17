@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.CursorPageResponse;
 import com.example.demo.dto.OrderDto;
 import com.example.demo.dto.OrderSearchCondition;
+import com.example.demo.dto.PageResponse;
 import com.example.demo.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,28 +25,22 @@ public class OrderApiController {
     }
 
     /**
-     * Cursor 기반 페이징 API
+     * 번호 기반 페이징 API (1~10 페이지 네비게이션)
      *
      * 사용 예시:
-     * - 첫 페이지:   GET /api/orders?size=50
-     * - 다음 페이지:  GET /api/orders?cursor=50&size=50
-     * - 검색+페이징:  GET /api/orders?cursor=100&size=50&customerName=홍길동
+     * - 첫 페이지:   GET /api/orders?page=1&size=50
+     * - 3페이지:    GET /api/orders?page=3&size=50
+     * - 검색+페이징:  GET /api/orders?page=1&size=50&customerName=홍길동
      */
     @GetMapping
-    public ResponseEntity<CursorPageResponse<OrderDto>> list(
-            @RequestParam(required = false) Long cursor,
+    public ResponseEntity<PageResponse<OrderDto>> list(
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(required = false) String customerName,
             @RequestParam(required = false) String status) {
 
-        OrderSearchCondition condition = OrderSearchCondition.builder()
-                .cursor(cursor)
-                .size(size)
-                .customerName(customerName)
-                .status(status)
-                .build();
-
-        return ResponseEntity.ok(orderService.findOrdersByCursor(condition));
+        return ResponseEntity.ok(
+                orderService.findOrdersByPage(page, size, customerName, status));
     }
 
     /**

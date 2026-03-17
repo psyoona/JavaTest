@@ -12,12 +12,8 @@
 
     <div class="stats">
         전체 주문 수: <span id="totalCount">-</span> 건
-        &nbsp;|&nbsp; 조회 방식: <strong>Cursor(Keyset) 기반 페이징</strong>
-    </div>
-
-    <div class="info-box">
-        💡 <strong>Cursor 기반 페이징</strong>은 <code>WHERE id &gt; cursor ORDER BY id LIMIT size</code> 방식으로
-        offset 기반보다 대용량 데이터에서 훨씬 빠른 성능을 제공합니다.
+        &nbsp;|&nbsp; 조회 방식: <strong>페이지 번호 기반 페이징</strong>
+        &nbsp;|&nbsp; 버전: <span id="appVersion">-</span>
     </div>
 
     <!-- 검색 폼 -->
@@ -71,12 +67,13 @@
         </table>
     </div>
 
-    <!-- 페이징 -->
+    <!-- 페이지 번호 네비게이션 -->
     <div class="paging">
-        <button id="firstBtn" class="btn btn-secondary">⏮ 처음</button>
-        <span id="rangeInfo"></span>
-        <button id="nextBtn" class="btn btn-disabled" data-cursor="">다음 ▶</button>
+        <button id="prevBlockBtn" class="page-btn" title="이전 10페이지">«</button>
+        <div id="pageNumbers" class="page-numbers"></div>
+        <button id="nextBlockBtn" class="page-btn" title="다음 10페이지">»</button>
     </div>
+    <div class="page-info" id="pageInfo"></div>
 </div>
 
 <script src="/js/app.js"></script>

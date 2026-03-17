@@ -120,8 +120,34 @@ tr:hover { background: #f0f7ff; }
     margin-top: 20px;
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 4px;
     align-items: center;
+}
+.page-numbers {
+    display: flex;
+    gap: 4px;
+}
+.page-btn {
+    min-width: 38px;
+    height: 38px;
+    padding: 0 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-size: .95em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+}
+.page-btn:hover { background: #3498db; color: #fff; border-color: #3498db; }
+.page-btn.active { background: #3498db; color: #fff; border-color: #3498db; }
+
+.page-info {
+    text-align: center;
+    margin-top: 8px;
+    color: #888;
+    font-size: .85em;
 }
 
 /* ── 로딩 ── */

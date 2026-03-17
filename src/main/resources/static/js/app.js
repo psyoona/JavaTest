@@ -1,5 +1,5 @@
 /**
- * 주문 관리 시스템 - 클라이언트 렌더링
+ * 주문 관리 시스템 - 번호 기반 페이지네이션
  * REST API를 호출하여 DOM을 직접 조작
  */
 
@@ -8,19 +8,18 @@ const API_BASE = '/api/orders';
 /* ──────────────────────────────────────────────
    상태
    ────────────────────────────────────────────── */
-let currentCursor = null;
-let cursorHistory = []; // 이전 페이지 커서 기록
+let currentPage = 1;
 
 /* ──────────────────────────────────────────────
    초기화
    ────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
     loadCount();
+    loadVersion();
     loadOrders();
 
     document.getElementById('searchBtn').addEventListener('click', () => {
-        currentCursor = null;
-        cursorHistory = [];
+        currentPage = 1;
         loadOrders();
     });
 
@@ -28,13 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('customerName').value = '';
         document.getElementById('status').value = '';
         document.getElementById('size').value = '50';
-        currentCursor = null;
-        cursorHistory = [];
+        currentPage = 1;
         loadOrders();
     });
 
-    document.getElementById('nextBtn').addEventListener('click', goNext);
-    document.getElementById('firstBtn').addEventListener('click', goFirst);
+    document.getElementById('prevBlockBtn').addEventListener('click', goPrevBlock);
+    document.getElementById('nextBlockBtn').addEventListener('click', goNextBlock);
 });
 
 /* ──────────────────────────────────────────────
@@ -47,6 +45,16 @@ async function loadCount() {
         document.getElementById('totalCount').textContent = data.count.toLocaleString();
     } catch (e) {
         console.error('count 조회 실패', e);
+    }
+}
+
+async function loadVersion() {
+    try {
+        const res = await fetch('/api/version');
+        const data = await res.json();
+        document.getElementById('appVersion').textContent = data.version;
+    } catch (e) {
+        console.error('버전 조회 실패', e);
     }
 }
 
@@ -73,15 +81,15 @@ function buildParams() {
     const status = document.getElementById('status').value;
 
     const p = new URLSearchParams();
+    p.set('page', currentPage);
     p.set('size', size);
-    if (currentCursor !== null) p.set('cursor', currentCursor);
     if (customerName) p.set('customerName', customerName);
     if (status) p.set('status', status);
     return p.toString();
 }
 
 /* ──────────────────────────────────────────────
-   렌더링
+   테이블 렌더링
    ────────────────────────────────────────────── */
 function renderTable(page) {
     const tbody = document.getElementById('orderBody');
@@ -106,41 +114,66 @@ function renderTable(page) {
     `).join('');
 }
 
+/* ──────────────────────────────────────────────
+   페이지 번호 네비게이션 렌더링
+   ────────────────────────────────────────────── */
 function renderPaging(page) {
-    const info = document.getElementById('rangeInfo');
-    const nextBtn = document.getElementById('nextBtn');
-    const rows = page.content;
+    const container = document.getElementById('pageNumbers');
+    const info = document.getElementById('pageInfo');
+    const prevBtn = document.getElementById('prevBlockBtn');
+    const nextBtn = document.getElementById('nextBlockBtn');
 
-    if (rows && rows.length > 0) {
-        info.textContent = `현재 범위: ID ${rows[0].id} ~ ${rows[rows.length - 1].id}`;
-    } else {
+    container.innerHTML = '';
+
+    if (page.totalPages <= 0) {
         info.textContent = '';
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        return;
     }
 
-    if (page.hasNext) {
-        nextBtn.className = 'btn btn-primary';
-        nextBtn.dataset.cursor = page.nextCursor;
-    } else {
-        nextBtn.className = 'btn btn-disabled';
-        nextBtn.dataset.cursor = '';
+    // 페이지 번호 버튼 생성 (startPage ~ endPage)
+    for (let i = page.startPage; i <= page.endPage; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = 'page-btn' + (i === page.page ? ' active' : '');
+        btn.addEventListener('click', () => goToPage(i));
+        container.appendChild(btn);
     }
+
+    // 이전/다음 블록 버튼
+    prevBtn.style.display = page.hasPrevious ? '' : 'none';
+    nextBtn.style.display = page.hasNext ? '' : 'none';
+
+    // 페이지 정보
+    info.textContent = `${page.page} / ${page.totalPages} 페이지 (총 ${page.totalElements.toLocaleString()}건)`;
 }
 
 /* ──────────────────────────────────────────────
-   페이징 이동
+   페이지 이동
    ────────────────────────────────────────────── */
-function goNext() {
-    const next = document.getElementById('nextBtn').dataset.cursor;
-    if (!next) return;
-    if (currentCursor !== null) cursorHistory.push(currentCursor);
-    currentCursor = Number(next);
+function goToPage(page) {
+    currentPage = page;
     loadOrders();
 }
 
-function goFirst() {
-    currentCursor = null;
-    cursorHistory = [];
-    loadOrders();
+function goPrevBlock() {
+    const pageNums = document.getElementById('pageNumbers');
+    const firstBtn = pageNums.querySelector('.page-btn');
+    if (firstBtn) {
+        currentPage = parseInt(firstBtn.textContent) - 1;
+        if (currentPage < 1) currentPage = 1;
+        loadOrders();
+    }
+}
+
+function goNextBlock() {
+    const pageNums = document.getElementById('pageNumbers');
+    const buttons = pageNums.querySelectorAll('.page-btn');
+    if (buttons.length > 0) {
+        currentPage = parseInt(buttons[buttons.length - 1].textContent) + 1;
+        loadOrders();
+    }
 }
 
 /* ──────────────────────────────────────────────
@@ -152,7 +185,6 @@ function num(v) {
 
 function fmtDate(arr) {
     if (!arr) return '-';
-    // Spring의 LocalDateTime은 JSON 배열 [y,m,d,h,m,s] 또는 ISO 문자열로 올 수 있음
     if (Array.isArray(arr)) {
         const [y, mo, d, h = 0, mi = 0] = arr;
         return `${y}-${pad(mo)}-${pad(d)} ${pad(h)}:${pad(mi)}`;

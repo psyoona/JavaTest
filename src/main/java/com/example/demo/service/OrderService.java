@@ -4,8 +4,12 @@ import com.example.demo.domain.Order;
 import com.example.demo.dto.CursorPageResponse;
 import com.example.demo.dto.OrderDto;
 import com.example.demo.dto.OrderSearchCondition;
+import com.example.demo.dto.PageResponse;
 import com.example.demo.repository.OrderJdbcRepository;
 import com.example.demo.repository.OrderRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -166,5 +170,31 @@ public class OrderService {
     @Transactional(readOnly = true)
     public long count() {
         return orderRepository.count();
+    }
+
+    // ──────────────────────────────────────────────
+    // 4) 번호 기반 페이징 (1~10 페이지 네비게이션)
+    // ──────────────────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public PageResponse<OrderDto> findOrdersByPage(int page, int size,
+                                                    String customerName, String statusStr) {
+        // 빈 문자열을 null로 변환
+        String custName = (customerName != null && !customerName.isBlank()) ? customerName : null;
+        Order.OrderStatus status = null;
+        if (statusStr != null && !statusStr.isBlank()) {
+            status = Order.OrderStatus.valueOf(statusStr);
+        }
+
+        // Spring Data의 page는 0-based, 프론트엔드는 1-based
+        PageRequest pageable = PageRequest.of(page - 1, size, Sort.by("id").ascending());
+
+        Page<Order> result = orderRepository.findPageWithCondition(custName, status, pageable);
+
+        List<OrderDto> content = result.getContent().stream()
+                .map(OrderDto::from)
+                .toList();
+
+        return new PageResponse<>(content, page, size, result.getTotalElements());
     }
 }

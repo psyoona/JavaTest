@@ -5,12 +5,16 @@ plugins {
 }
 
 group = 'com.example'
-version = '0.0.1-SNAPSHOT'
+version = '1.00.000'
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
     }
+}
+
+springBoot {
+    buildInfo()
 }
 
 repositories {
