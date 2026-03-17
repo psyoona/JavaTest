@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: java-springboot-demo
+
+  # ──────────────────────────────────────────────
+  # PostgreSQL 18 DataSource
+  # ──────────────────────────────────────────────
+  datasource:
+    url: jdbc:postgresql://localhost:5432/demo
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+      # 대용량 스트리밍 쿼리를 위해 auto-commit false 설정
+      auto-commit: false
+
+  # ──────────────────────────────────────────────
+  # JPA / Hibernate
+  # ──────────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        # 대용량 배치 처리 최적화
+        jdbc:
+          batch_size: 100
+          fetch_size: 500
+        order_inserts: true
+        order_updates: true
+        default_batch_fetch_size: 100
+    show-sql: true
+
+# ──────────────────────────────────────────────
+# Server
+# ──────────────────────────────────────────────
+server:
+  port: 8080
+
+# ──────────────────────────────────────────────
+# Logging
+# ──────────────────────────────────────────────
+logging:
+  level:
+    root: INFO
+    com.example.demo: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

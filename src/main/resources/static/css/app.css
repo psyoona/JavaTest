@@ -1,0 +1,172 @@
+/* ──────────────────────────────────────────────
+   공통 스타일
+   ────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    color: #333;
+}
+
+a { color: #3498db; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+h1 { margin-bottom: 20px; color: #2c3e50; }
+
+/* ── 상단 통계 ── */
+.stats {
+    background: #fff;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+.stats span { font-size: 1.2em; font-weight: bold; color: #3498db; }
+
+/* ── 안내 박스 ── */
+.info-box {
+    background: #dfe6e9;
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    font-size: .9em;
+    color: #2d3436;
+}
+
+/* ── 검색 폼 ── */
+.search-form {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: .85em; color: #666; font-weight: 600; }
+.form-group input,
+.form-group select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: .95em;
+}
+
+/* ── 버튼 ── */
+.btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: .95em;
+    font-weight: 600;
+    transition: background .2s;
+    display: inline-block;
+    text-align: center;
+}
+.btn-primary { background: #3498db; color: #fff; }
+.btn-primary:hover { background: #2980b9; }
+.btn-secondary { background: #95a5a6; color: #fff; }
+.btn-secondary:hover { background: #7f8c8d; }
+.btn-disabled { background: #ddd; color: #999; cursor: default; }
+
+/* ── 테이블 ── */
+.table-wrapper {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    overflow-x: auto;
+}
+table { width: 100%; border-collapse: collapse; }
+th {
+    background: #34495e;
+    color: #fff;
+    padding: 12px 15px;
+    text-align: left;
+    font-size: .9em;
+    position: sticky;
+    top: 0;
+}
+td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: .9em;
+}
+tr:hover { background: #f0f7ff; }
+
+.amount { text-align: right; }
+
+/* ── 상태 뱃지 ── */
+.status {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: .8em;
+    font-weight: 600;
+}
+.status-PENDING   { background: #ffeaa7; color: #856404; }
+.status-CONFIRMED { background: #81ecec; color: #0c5460; }
+.status-SHIPPED   { background: #74b9ff; color: #004085; }
+.status-DELIVERED  { background: #55efc4; color: #155724; }
+.status-CANCELLED  { background: #fab1a0; color: #721c24; }
+
+/* ── 페이징 ── */
+.paging {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ── 로딩 ── */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-size: 1.1em;
+}
+
+/* ── 빈 결과 ── */
+.empty-row td {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+/* ──────────────────────────────────────────────
+   상세 페이지
+   ────────────────────────────────────────────── */
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+.field {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    padding: 12px 0;
+}
+.field:last-child { border-bottom: none; }
+.field-label { width: 150px; font-weight: 600; color: #666; }
+.field-value { flex: 1; }
+
+.btn-back { background: #95a5a6; color: #fff; margin-top: 20px; }
+.btn-back:hover { background: #7f8c8d; }
+
+/* ── 에러 ── */
+.error-box {
+    background: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    text-align: center;
+}
+.error-box h1 { color: #e74c3c; margin-bottom: 10px; }
+.error-box p { color: #666; }
