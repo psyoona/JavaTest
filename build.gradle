@@ -1,37 +1,37 @@
+// ──────────────────────────────────────────────
+// 루트 프로젝트 - 공통 설정만 정의
+// 모든 소스 코드는 하위 모듈(common-web, app)에 위치
+// ──────────────────────────────────────────────
 plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.4.4'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.boot' version '3.4.4'           apply false
+    id 'io.spring.dependency-management' version '1.1.7'    apply false
 }
 
-group = 'com.example'
+group = 'com.yoonslab'
 version = '1.00.000'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'com.yoonslab'
+    version = '1.00.000'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
     }
-}
 
-springBoot {
-    buildInfo()
-}
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
 
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-    runtimeOnly 'org.postgresql:postgresql'
-
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
+    // 모든 서브모듈이 Spring Boot BOM을 공유 (버전 명시 불필요)
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.4"
+        }
+    }
 }
