@@ -17,8 +17,9 @@ async function loadOrder(id) {
     try {
         const res = await fetch(`${API_BASE}/${encodeURIComponent(id)}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const order = await res.json();
-        render(order);
+        const body = await res.json();
+        if (!body.success) throw new Error(body.message);
+        render(body.data);
     } catch (e) {
         showError('주문을 불러올 수 없습니다.');
         console.error(e);

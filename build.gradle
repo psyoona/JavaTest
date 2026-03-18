@@ -1,37 +1,60 @@
-// ──────────────────────────────────────────────
-// 루트 프로젝트 - 공통 설정만 정의
-// 모든 소스 코드는 하위 모듈(common-web, app)에 위치
-// ──────────────────────────────────────────────
 plugins {
-    id 'org.springframework.boot' version '3.4.4'           apply false
-    id 'io.spring.dependency-management' version '1.1.7'    apply false
+    id 'java'
+    id 'org.springframework.boot' version '3.4.4'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.yoonslab'
 version = '1.00.000'
 
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'io.spring.dependency-management'
-
-    group = 'com.yoonslab'
-    version = '1.00.000'
-
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(25)
-        }
-    }
-
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
-
-    // 모든 서브모듈이 Spring Boot BOM을 공유 (버전 명시 불필요)
-    dependencyManagement {
-        imports {
-            mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.4"
-        }
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
+
+springBoot {
+    buildInfo()
+}
+
+bootJar {
+    // JAR 파일명 고정 (배포 스크립트에서 경로 변경 불필요)
+    archiveFileName = 'demo.jar'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        name = 'GitHubPackages'
+        url  = uri('https://maven.pkg.github.com/psyoona/common-web')
+        credentials {
+            username = findProperty('githubActor') ?: System.getenv('GITHUB_ACTOR')
+            password = findProperty('githubToken') ?: System.getenv('GITHUB_TOKEN')
+        }
+    }
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:3.4.4"
+    }
+}
+
+dependencies {
+    implementation 'com.yoonslab:common-web:1.01.001'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    runtimeOnly 'org.postgresql:postgresql'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+

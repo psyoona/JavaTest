@@ -41,8 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadCount() {
     try {
         const res = await fetch(`${API_BASE}/count`);
-        const data = await res.json();
-        document.getElementById('totalCount').textContent = data.count.toLocaleString();
+        const body = await res.json();
+        document.getElementById('totalCount').textContent = body.data.count.toLocaleString();
     } catch (e) {
         console.error('count 조회 실패', e);
     }
@@ -51,8 +51,8 @@ async function loadCount() {
 async function loadVersion() {
     try {
         const res = await fetch('/api/version');
-        const data = await res.json();
-        document.getElementById('appVersion').textContent = data.version;
+        const body = await res.json();
+        document.getElementById('appVersion').textContent = body.data.version;
     } catch (e) {
         console.error('버전 조회 실패', e);
     }
@@ -66,9 +66,10 @@ async function loadOrders() {
 
     try {
         const res = await fetch(`${API_BASE}?${params}`);
-        const page = await res.json();
-        renderTable(page);
-        renderPaging(page);
+        const body = await res.json();
+        if (!body.success) throw new Error(body.message);
+        renderTable(body.data);
+        renderPaging(body.data);
     } catch (e) {
         tbody.innerHTML = '<tr><td colspan="8" class="loading">데이터를 불러올 수 없습니다.</td></tr>';
         console.error('주문 조회 실패', e);

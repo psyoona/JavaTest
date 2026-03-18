@@ -1,16 +1,16 @@
 package com.yoonslab.order.controller;
 
+import com.yoonslab.common.dto.ApiResponse;
 import com.yoonslab.common.dto.PageResponse;
 import com.yoonslab.order.dto.OrderDto;
 import com.yoonslab.order.service.OrderService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 /**
  * 주문 REST API 컨트롤러
- * 페이징 DTO는 common-web 모듈의 com.example.common.dto 사용
+ * 모든 응답은 ApiResponse<T>로 통일 ({ success, message, data })
  */
 @RestController
 @RequestMapping("/api/orders")
@@ -31,34 +31,33 @@ public class OrderApiController {
      * - 검색+페이징:  GET /api/orders?page=1&size=50&customerName=홍길동
      */
     @GetMapping
-    public ResponseEntity<PageResponse<OrderDto>> list(
+    public ApiResponse<PageResponse<OrderDto>> list(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(required = false) String customerName,
             @RequestParam(required = false) String status) {
 
-        return ResponseEntity.ok(
-                orderService.findOrdersByPage(page, size, customerName, status));
+        return ApiResponse.ok(orderService.findOrdersByPage(page, size, customerName, status));
     }
 
     /**
      * 주문 상세 API
      */
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDto> detail(@PathVariable Long id) {
-        return ResponseEntity.ok(orderService.findById(id));
+    public ApiResponse<OrderDto> detail(@PathVariable Long id) {
+        return ApiResponse.ok(orderService.findById(id));
     }
 
     /**
      * Stream 기반 전체 처리 실행 API
      */
     @PostMapping("/process/stream")
-    public ResponseEntity<Map<String, Object>> processStream() {
+    public ApiResponse<Map<String, Object>> processStream() {
         long startTime = System.currentTimeMillis();
         long count = orderService.processAllOrdersByStream();
         long elapsed = System.currentTimeMillis() - startTime;
 
-        return ResponseEntity.ok(Map.of(
+        return ApiResponse.ok(Map.of(
                 "method", "JPA Stream (Server-side Cursor)",
                 "processedCount", count,
                 "elapsedMs", elapsed
@@ -69,7 +68,7 @@ public class OrderApiController {
      * Batch 기반 전체 처리 실행 API
      */
     @PostMapping("/process/batch")
-    public ResponseEntity<Map<String, Object>> processBatch(
+    public ApiResponse<Map<String, Object>> processBatch(
             @RequestParam(defaultValue = "1000") int batchSize) {
         // 범위 제한 (최소 100, 최대 10000)
         if (batchSize < 100 || batchSize > 10000) batchSize = 1000;
@@ -78,7 +77,7 @@ public class OrderApiController {
         long count = orderService.processOrdersByBatch(batchSize);
         long elapsed = System.currentTimeMillis() - startTime;
 
-        return ResponseEntity.ok(Map.of(
+        return ApiResponse.ok(Map.of(
                 "method", "JDBC Batch Processing",
                 "batchSize", batchSize,
                 "processedCount", count,
@@ -90,7 +89,7 @@ public class OrderApiController {
      * 데이터 건수 조회 API
      */
     @GetMapping("/count")
-    public ResponseEntity<Map<String, Long>> count() {
-        return ResponseEntity.ok(Map.of("count", orderService.count()));
+    public ApiResponse<Map<String, Long>> count() {
+        return ApiResponse.ok(Map.of("count", orderService.count()));
     }
 }
