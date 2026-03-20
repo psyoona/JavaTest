@@ -113,6 +113,42 @@ src/main/resources/
         └── detail.js               # 상세 페이지 스크립트
 ```
 
+## common-web 라이브러리 업데이트
+
+이 프로젝트는 `com.yoonslab:common-web` 공통 모듈을 GitHub Packages에서 가져옵니다.
+
+### 사전 설정 (최초 1회)
+
+`~/.gradle/gradle.properties`에 GitHub 인증 정보를 추가합니다:
+
+```properties
+githubActor=깃허브_아이디
+githubToken=ghp_xxxxxxxxxxxxxxxxxxxx
+```
+
+> 토큰은 GitHub → Settings → Developer settings → Personal access tokens에서 `read:packages` 권한으로 생성합니다.
+
+### 버전 업데이트 방법
+
+1. `build.gradle`에서 버전 수정:
+   ```groovy
+   dependencies {
+       implementation 'com.yoonslab:common-web:1.01.002'  // 버전 변경
+   }
+   ```
+
+2. Gradle 의존성 갱신:
+   ```bash
+   ./gradlew build --refresh-dependencies -x test
+   ```
+
+3. IDE를 사용하는 경우 Gradle 동기화 (IntelliJ: 🔄 아이콘 또는 `Ctrl+Shift+O`)
+
+### 사용 가능한 버전 확인
+
+GitHub Packages 페이지에서 확인할 수 있습니다:
+- Repository: `psyoona/common-web` → Packages 탭
+
 ## 버전
 - **현재 버전**: `1.00.000`
 - `GET /api/version`으로 확인 가능
